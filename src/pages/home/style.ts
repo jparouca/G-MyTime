@@ -13,6 +13,7 @@ export const Hero = styled('div', {
   maxWidth: 480,
 	padding: '0 $10',
 
+
   [`> ${Heading}`]: {
     color: '$gray100',
   },
@@ -20,6 +21,10 @@ export const Hero = styled('div', {
     marginTop: '$2',
     color: '$gray200',
   },
+  button: {
+    backgroundImage: 'linear-gradient(90deg, #FF008E 0%, #FFCD1E 100%)',
+  },
+
 })
 
 export const Preview = styled('div', {
