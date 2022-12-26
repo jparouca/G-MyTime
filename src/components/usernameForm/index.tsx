@@ -50,7 +50,7 @@ export function GetUsernameForm() {
         <Text size="sm">
           {errors.username
             ? errors.username.message
-            : 'Choose a name for your calendar link'}
+            : 'Choose a name for your sync-calendar link'}
         </Text>
       </FormRegex>
     </>

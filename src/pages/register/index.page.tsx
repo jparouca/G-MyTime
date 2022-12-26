@@ -1,4 +1,4 @@
-import { Container, Header, Form, FormError } from './styes'
+import { Container, Header, Form, FormError } from './styles'
 import { Button, Heading, MultiStep, Text, TextInput } from '@ignite-ui/react'
 import { ArrowFatLineRight } from 'phosphor-react'
 import { useForm } from 'react-hook-form'
@@ -44,6 +44,7 @@ export default function Register() {
         name: data.name,
         username: data.username,
       })
+      await router.push('/register/sync-calendar')
     } catch (err) {
       if ( err instanceof AxiosError && err?.response?.data?.message) {
         alert(err.response.data.message)
