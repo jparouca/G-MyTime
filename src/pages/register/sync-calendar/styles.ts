@@ -1,4 +1,4 @@
-import {Box, Button, styled} from "@ignite-ui/react";
+import { Box, Button, styled, Text } from '@ignite-ui/react'
 
 export const SyncBox = styled(Box, {
   marginTop: '$6',
@@ -9,7 +9,6 @@ export const SyncBox = styled(Box, {
     backgroundImage: 'linear-gradient(90deg, #FF008E 0%, #FFCD1E 100%)',
   },
 })
-
 
 export const SyncItem = styled('div', {
   display: 'flex',
@@ -26,4 +25,9 @@ export const SyncItem = styled('div', {
     border: 'white',
     color: 'white',
   },
+})
+
+export const AuthErr = styled(Text, {
+  color: '#cc241d',
+  marginBottom: '$4',
 })
