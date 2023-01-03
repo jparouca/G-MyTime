@@ -22,10 +22,8 @@ export const FrameContainer = styled('div', {
 export const FrameItem = styled('h3', {
   display : 'flex',
   alignItems: 'center',
-
   justifyContent: 'space-between',
   padding: '$3 $4',
-
   '& + &': {
     borderTop: '1px solid white',
   },
@@ -34,7 +32,7 @@ export const FrameItem = styled('h3', {
 export const FrameDay = styled('div', {
   display: 'flex',
   alignItems: 'center',
-  gap: '$12',
+  gap: '$3',
 })
 
 export const FrameInputs = styled('div', {
