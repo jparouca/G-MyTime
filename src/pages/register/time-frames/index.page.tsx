@@ -9,19 +9,32 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 const timeFramesFormSchema = z.object({
   frames: z.array(z.object({
-    weekday: z.number().min(0).max(6),
+    weekDay: z.number().min(0).max(6),
     enabled: z.boolean(),
     startTime: z.string(),
     endTime: z.string(),
   })).length(7).transform(frames => frames.filter(frames => frames.enabled))
-  .refine(frames => frames.length > 0, {message: 'You must select at least one day'}),
+  .refine(frames => frames.length > 0, {message: 'You must select at least one day'})
+  .transform(frames => {
+    return frames.map(frame => {
+      return {
+        weekDay: frame.weekDay,
+        startTimeMinutes: convertTimeStringToMinutes(frame.startTime),
+        endTimeMinutes: convertTimeStringToMinutes(frame.endTime),
+      }
+    })
+  })
+  .refine(frames => {
+    return frames.every(frame => frame.endTimeMinutes - 30 >= frame.startTimeMinutes)
+  }),
 });
 
-type TimeFramesFormData = z.infer<typeof timeFramesFormSchema>;
+type TimeFramesFormInput = z.input<typeof timeFramesFormSchema>;
+type TimeFramesFormOutput = z.output<typeof timeFramesFormSchema>;
 
 
 export default function TimeFrames() {
-  const {register, handleSubmit, control, watch, formState: {isSubmitting, errors}} = useForm({
+  const {register, handleSubmit, control, watch, formState: {isSubmitting, errors}} = useForm<TimeFramesFormInput>({
     resolver: zodResolver(timeFramesFormSchema),
     defaultValues: {
       frames: [
@@ -43,8 +56,11 @@ export default function TimeFrames() {
 
   const frames = watch('frames');
 
-  async function handleSetTimeFrames() {}
-  
+  async function handleSetTimeFrames(data: any) {
+    const formData = data as TimeFramesFormOutput
+  }
+
+
   return (
     <>
       <Container>
@@ -94,10 +110,18 @@ export default function TimeFrames() {
       </Container>
     </>
   )
+
+  //Utils shit
   function getWeekDays() {
     const formatter = new Intl.DateTimeFormat('en', { weekday: 'long'});
     
     return Array.from(Array(7).keys())
     .map((day) => formatter.format(new Date(Date.UTC(2023, 1, day))))
   }
+}
+
+function convertTimeStringToMinutes(time: string) {
+  const [hours, minutes] = time.split(':').map(Number);
+  
+  return hours * 60 + minutes;
 }

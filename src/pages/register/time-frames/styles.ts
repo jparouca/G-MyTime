@@ -5,7 +5,7 @@ export const FrameBox = styled(Box, {
   display: 'flex',
   flexDirection: 'column',
   
-  button: {
+  'button[type="submit"]': {
     backgroundImage: 'linear-gradient(90deg, #FF008E 0%, #FFCD1E 100%)',
     border: 'white',
     color: 'white',
