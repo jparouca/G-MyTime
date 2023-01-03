@@ -8,7 +8,7 @@ export default function Home() {
     <>
       <Container>
         <Hero>
-          <Heading as="h1">G-My Free Time Slots</Heading>
+          <Heading as="h1">My Free Slots</Heading>
           <Text size="xl">
             TimeSlotFinder is a tool that helps you find and share your
             available time with others. Schedule meetings, calls, and other

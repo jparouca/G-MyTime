@@ -4,10 +4,11 @@ import { AuthErr, SyncBox, SyncItem } from './styles'
 import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { Check } from 'phosphor-react'
-export default function Register() {
+
+
+export default function SyncCalendar() {
   const router = useRouter()
   const session = useSession()
-
   const hasAuthErr = !!router.query.error
   const isSignedIn = session.status === 'authenticated'
 
