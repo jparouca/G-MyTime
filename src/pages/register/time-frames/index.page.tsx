@@ -2,12 +2,12 @@ import { Container, Header } from '../styles'
 import { Checkbox, Heading, MultiStep, Text, TextInput, Button } from '@ignite-ui/react';
 import { FrameBox, FrameContainer, FrameDay, FrameInputs, FrameItem } from './styles';
 import { ArrowFatRight } from 'phosphor-react';
-import { useFieldArray, useForm } from 'react-hook-form';
+import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 export default function TimeFrames() {
   const weekDay = getWeekDays();
-  const {register, handleSubmit, control, formState: {isSubmitting, errors}} = useForm({
+  const {register, handleSubmit, control, watch, formState: {isSubmitting, errors}} = useForm({
     defaultValues: {
       frames: [
         {weekDay: 0, enabled: false, startTime: '08:00', endTime: '23:00'},
@@ -20,6 +20,7 @@ export default function TimeFrames() {
       ],
     },
   })
+  const frames = watch('frames');
   const { fields } = useFieldArray({
     control,
     name: 'frames',
@@ -50,12 +51,22 @@ export default function TimeFrames() {
               return (
                 <FrameItem key={field.id}>
                 <FrameDay>
-                    <Checkbox></Checkbox>
+                  <Controller name={`frames.${index}.enabled`} control={control} render={({field}) => {
+                    return (
+                      <Checkbox onCheckedChange={checked => {
+                        field.onChange(checked === true)}} checked={field.value}
+                      />
+                    )
+                  }} />
                     <Text>{weekDay[field.weekDay]}</Text>
                 </FrameDay>
                 <FrameInputs>
-                    <TextInput size="sm" type="time" step={60} {...register(`frames.${index}.startTime`)}></TextInput>
-                    <TextInput size="sm" type="time" step={60} {...register(`frames.${index}.endTime`)}></TextInput>
+                    <TextInput
+                      size="sm" type="time" step={60}
+                      {...register(`frames.${index}.startTime`)}  disabled={frames[index].enabled === false} />
+                    <TextInput
+                      size="sm" type="time" step={60}
+                      {...register(`frames.${index}.endTime`)}  disabled={frames[index].enabled === false}/>
                   </FrameInputs>
               </FrameItem>
               )
