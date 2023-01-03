@@ -1,13 +1,28 @@
 import { Container, Header } from '../styles'
 import { Checkbox, Heading, MultiStep, Text, TextInput, Button } from '@ignite-ui/react';
-import { FrameBox, FrameContainer, FrameDay, FrameInputs, FrameItem } from './styles';
+import { FormError, FrameBox, FrameContainer, FrameDay, FrameInputs, FrameItem } from './styles';
 import { ArrowFatRight } from 'phosphor-react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+
+const timeFramesFormSchema = z.object({
+  frames: z.array(z.object({
+    weekday: z.number().min(0).max(6),
+    enabled: z.boolean(),
+    startTime: z.string(),
+    endTime: z.string(),
+  })).length(7).transform(frames => frames.filter(frames => frames.enabled))
+  .refine(frames => frames.length > 0, {message: 'You must select at least one day'}),
+});
+
+type TimeFramesFormData = z.infer<typeof timeFramesFormSchema>;
+
 
 export default function TimeFrames() {
-  const weekDay = getWeekDays();
   const {register, handleSubmit, control, watch, formState: {isSubmitting, errors}} = useForm({
+    resolver: zodResolver(timeFramesFormSchema),
     defaultValues: {
       frames: [
         {weekDay: 0, enabled: false, startTime: '08:00', endTime: '23:00'},
@@ -19,21 +34,17 @@ export default function TimeFrames() {
         {weekDay: 6, enabled: false, startTime: '08:00', endTime: '23:00'},
       ],
     },
-  })
-  const frames = watch('frames');
+  });
+  const weekDay = getWeekDays();
   const { fields } = useFieldArray({
     control,
     name: 'frames',
-  })
-  // const timeFramesFormSchema = z.object({});
-  function getWeekDays() {
-    const formatter = new Intl.DateTimeFormat('en', { weekday: 'long'});
-    
-    return Array.from(Array(7).keys())
-      .map((day) => formatter.format(new Date(Date.UTC(2023, 1, day))))
-  }
-  async function handleSetTimeFrames() {}
+  });
 
+  const frames = watch('frames');
+
+  async function handleSetTimeFrames() {}
+  
   return (
     <>
       <Container>
@@ -73,11 +84,20 @@ export default function TimeFrames() {
             })}
           </FrameContainer>
 
-          <Button type="submit">Next Step <ArrowFatRight/></Button>
+          {errors.frames && (
+            <FormError size="sm">{errors.frames.message}</FormError>
+          )}
+          <Button type="submit" disabled={isSubmitting}>Next Step <ArrowFatRight/></Button>
 
         </FrameBox>
 
       </Container>
     </>
   )
+  function getWeekDays() {
+    const formatter = new Intl.DateTimeFormat('en', { weekday: 'long'});
+    
+    return Array.from(Array(7).keys())
+    .map((day) => formatter.format(new Date(Date.UTC(2023, 1, day))))
+  }
 }

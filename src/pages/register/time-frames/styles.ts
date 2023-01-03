@@ -1,4 +1,4 @@
-import { Box, styled } from "@ignite-ui/react"
+import { Box, styled, Text } from "@ignite-ui/react"
 
 export const FrameBox = styled(Box, {
   marginTop: '$6',
@@ -43,4 +43,9 @@ export const FrameInputs = styled('div', {
   'input::-webkit-calendar-picker-indicator': {
     filter: 'invert(1) brightness(0.7)',
   }
+})
+
+export const FormError = styled(Text, {
+  color: '#cc241d',
+  marginBottom: '$2',
 })
