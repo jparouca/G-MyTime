@@ -5,6 +5,7 @@ import { ArrowFatRight } from 'phosphor-react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { api } from '../../../lib/axios';
 
 
 const timeFramesFormSchema = z.object({
@@ -14,19 +15,19 @@ const timeFramesFormSchema = z.object({
     startTime: z.string(),
     endTime: z.string(),
   })).length(7).transform(frames => frames.filter(frames => frames.enabled))
-  .refine(frames => frames.length > 0, {message: 'You must select at least one day'})
-  .transform(frames => {
-    return frames.map(frame => {
-      return {
-        weekDay: frame.weekDay,
-        startTimeMinutes: convertTimeStringToMinutes(frame.startTime),
-        endTimeMinutes: convertTimeStringToMinutes(frame.endTime),
-      }
+    .refine(frames => frames.length > 0, { message: 'You must select at least one day' })
+    .transform(frames => {
+      return frames.map(frame => {
+        return {
+          weekDay: frame.weekDay,
+          startTimeMinutes: convertTimeStringToMinutes(frame.startTime),
+          endTimeMinutes: convertTimeStringToMinutes(frame.endTime),
+        }
+      })
     })
-  })
-  .refine(frames => {
-    return frames.every(frame => frame.endTimeMinutes - 30 >= frame.startTimeMinutes)
-  }),
+    .refine(frames => {
+      return frames.every(frame => frame.endTimeMinutes - 30 >= frame.startTimeMinutes)
+    }),
 });
 
 type TimeFramesFormInput = z.input<typeof timeFramesFormSchema>;
@@ -34,17 +35,17 @@ type TimeFramesFormOutput = z.output<typeof timeFramesFormSchema>;
 
 
 export default function TimeFrames() {
-  const {register, handleSubmit, control, watch, formState: {isSubmitting, errors}} = useForm<TimeFramesFormInput>({
+  const { register, handleSubmit, control, watch, formState: { isSubmitting, errors } } = useForm<TimeFramesFormInput>({
     resolver: zodResolver(timeFramesFormSchema),
     defaultValues: {
       frames: [
-        {weekDay: 0, enabled: false, startTime: '08:00', endTime: '23:00'},
-        {weekDay: 1, enabled: true, startTime: '08:00', endTime: '23:00'},
-        {weekDay: 2, enabled: true, startTime: '08:00', endTime: '23:00'},
-        {weekDay: 3, enabled: true, startTime: '08:00', endTime: '23:00'},
-        {weekDay: 4, enabled: true, startTime: '08:00', endTime: '23:00'},
-        {weekDay: 5, enabled: true, startTime: '08:00', endTime: '23:00'},
-        {weekDay: 6, enabled: false, startTime: '08:00', endTime: '23:00'},
+        { weekDay: 0, enabled: false, startTime: '08:00', endTime: '23:00' },
+        { weekDay: 1, enabled: true, startTime: '08:00', endTime: '23:00' },
+        { weekDay: 2, enabled: true, startTime: '08:00', endTime: '23:00' },
+        { weekDay: 3, enabled: true, startTime: '08:00', endTime: '23:00' },
+        { weekDay: 4, enabled: true, startTime: '08:00', endTime: '23:00' },
+        { weekDay: 5, enabled: true, startTime: '08:00', endTime: '23:00' },
+        { weekDay: 6, enabled: false, startTime: '08:00', endTime: '23:00' },
       ],
     },
   });
@@ -57,7 +58,9 @@ export default function TimeFrames() {
   const frames = watch('frames');
 
   async function handleSetTimeFrames(data: any) {
-    const formData = data as TimeFramesFormOutput
+    const { frames } = data as TimeFramesFormOutput
+
+    await api.post('/users/time-frames', { frames })
   }
 
 
@@ -77,25 +80,26 @@ export default function TimeFrames() {
             {fields.map((field, index) => {
               return (
                 <FrameItem key={field.id}>
-                <FrameDay>
-                  <Controller name={`frames.${index}.enabled`} control={control} render={({field}) => {
-                    return (
-                      <Checkbox onCheckedChange={checked => {
-                        field.onChange(checked === true)}} checked={field.value}
-                      />
-                    )
-                  }} />
+                  <FrameDay>
+                    <Controller name={`frames.${index}.enabled`} control={control} render={({ field }) => {
+                      return (
+                        <Checkbox onCheckedChange={checked => {
+                          field.onChange(checked === true)
+                        }} checked={field.value}
+                        />
+                      )
+                    }} />
                     <Text>{weekDay[field.weekDay]}</Text>
-                </FrameDay>
-                <FrameInputs>
+                  </FrameDay>
+                  <FrameInputs>
                     <TextInput
                       size="sm" type="time" step={60}
-                      {...register(`frames.${index}.startTime`)}  disabled={frames[index].enabled === false} />
+                      {...register(`frames.${index}.startTime`)} disabled={frames[index].enabled === false} />
                     <TextInput
                       size="sm" type="time" step={60}
-                      {...register(`frames.${index}.endTime`)}  disabled={frames[index].enabled === false}/>
+                      {...register(`frames.${index}.endTime`)} disabled={frames[index].enabled === false} />
                   </FrameInputs>
-              </FrameItem>
+                </FrameItem>
               )
             })}
           </FrameContainer>
@@ -103,7 +107,7 @@ export default function TimeFrames() {
           {errors.frames && (
             <FormError size="sm">{errors.frames.message}</FormError>
           )}
-          <Button type="submit" disabled={isSubmitting}>Next Step <ArrowFatRight/></Button>
+          <Button type="submit" disabled={isSubmitting}>Next Step <ArrowFatRight /></Button>
 
         </FrameBox>
 
@@ -113,15 +117,15 @@ export default function TimeFrames() {
 
   //Utils shit
   function getWeekDays() {
-    const formatter = new Intl.DateTimeFormat('en', { weekday: 'long'});
-    
+    const formatter = new Intl.DateTimeFormat('en', { weekday: 'long' });
+
     return Array.from(Array(7).keys())
-    .map((day) => formatter.format(new Date(Date.UTC(2023, 1, day))))
+      .map((day) => formatter.format(new Date(Date.UTC(2023, 1, day))))
   }
 }
 
 function convertTimeStringToMinutes(time: string) {
   const [hours, minutes] = time.split(':').map(Number);
-  
+
   return hours * 60 + minutes;
 }
